@@ -2,14 +2,38 @@
 set -eu
 profile=$(mktemp -d)
 pid=
+owned_marker=
 cleanup() {
-    if [ -n "$pid" ]; then kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; fi
+    if [ -n "$pid" ]; then
+        kill "$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
+    fi
+    if [ -n "$owned_marker" ]; then rm -f -- "$owned_marker"; fi
     rm -rf -- "$profile"
 }
 trap cleanup EXIT
 trap 'exit 0' INT TERM HUP
+
 if [ "${AMOEBA_CAGE:-0}" = 1 ]; then
-    cage -- "${AMOEBA_BROWSER:-chromium}" --ozone-platform=wayland --no-first-run --disable-background-mode          --user-data-dir="$profile" --app="$1" &
+    marker=${AMOEBA_CONSOLE_VIEW_MARKER:-${LISP_CONSOLE_VIEWING:-}}
+    if [ -n "$marker" ]; then
+        if ! (umask 077; set -C; : > "$marker"); then
+            echo "A graphical viewer already owns this console: $marker" >&2
+            exit 1
+        fi
+        owned_marker=$marker
+        reader=$(dirname -- "$marker")/touch-reading
+        attempts=0
+        while [ -e "$reader" ] && [ "$attempts" -lt 40 ]; do
+            sleep .025
+            attempts=$((attempts + 1))
+        done
+        if [ -e "$reader" ]; then
+            echo "The text console did not release the touchscreen." >&2
+            exit 1
+        fi
+    fi
+    "${AMOEBA_CAGE_BINARY:-cage}" -- "${AMOEBA_BROWSER:-chromium}"         --ozone-platform=wayland --no-first-run --disable-background-mode         --user-data-dir="$profile" --app="$1" &
 else
     "${AMOEBA_BROWSER:-chromium}" --no-first-run --disable-background-mode         --user-data-dir="$profile" --app="$1" &
 fi

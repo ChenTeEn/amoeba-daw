@@ -27,7 +27,7 @@ From a desktop session run `bin/amoeba signal-rooms mix`. On a local Wayland-cap
 - `stems NEW-DIRECTORY` exports 48 kHz / 24-bit stereo master and stems from the saved revision.
 - `session end` ends the session and discards unsaved session edits.
 - Set `AMOEBA_PCM` before the first session command to select a named ALSA playback device. The default is `default`. Set `AMOEBA_PCM=null` for a silent, paced transport test.
-- Set `AMOEBA_BROWSER` if Chromium has a different executable name. Or set `AMOEBA_VIEWER` to a program that opens the URL passed as its only argument, waits for its window, and closes the window when terminated.
+- Set `AMOEBA_BROWSER` or `AMOEBA_CAGE_BINARY` if the tools have different executable names or need absolute paths. Or set `AMOEBA_VIEWER` to a program that opens the URL passed as its only argument, waits for its window, and closes the window when terminated.
 - On NixOS, `AMOEBA_ALSA_LIBRARY` can point to your installed libasound library when the dynamic loader cannot find it. No per-machine path comes with this repository.
 
 ### Common Lisp REPL
@@ -41,9 +41,13 @@ From a desktop session run `bin/amoeba signal-rooms mix`. On a local Wayland-cap
 
 This adapter also works in SBCL scripts. It dispatches the same named operations; scripts execute in their own process. The audio loop does not evaluate browser input or arbitrary project forms. The renderer, transport, editing and session state are implemented in Common Lisp.
 
+On the AMOEBA Lisp Console, the Cage launcher automatically uses the console's touch ownership marker. Another compatible console can set `AMOEBA_CONSOLE_VIEW_MARKER` to its private marker path. The viewer waits for the console's sibling `touch-reading` marker to disappear before starting and releases only the marker it created. This does not change desktop-mode Chromium.
+
 ## Verify and give feedback
 
 `tests/smoke.sh` needs a Linux user session, Xvfb, Chromium and Node.js 22+ in addition to the core dependencies. It generates the project under a temporary directory and uses the ALSA null device. It starts playback from the CLI, injects a Chromium touch event to locate B, detaches and reconnects the mixer, terminates Chromium, and verifies terminal stop. End an existing AMOEBA session first.
+
+`tests/console-handoff.sh` checks the touch ownership handshake, viewer failure cleanup, and preservation of a marker owned by an existing viewer. It needs a POSIX shell and standard utilities only.
 
 Public preview limitations: one active local project per user, 90-second mixer views, fixed-tempo projects, no plugins or MIDI cue scheduler, experimental ALSA capture. Capture is off by default. To opt in set `AMOEBA_CAPTURE_PCM` before starting the session; configure interface gain and headphones externally. This release includes no routing presets, measured compensation, or recordings from its development machine.
 
