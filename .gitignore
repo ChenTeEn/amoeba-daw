@@ -1,0 +1,5 @@
+*.wav
+*.fasl
+__pycache__/
+.env
+*.log

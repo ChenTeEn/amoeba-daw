@@ -1,0 +1,4 @@
+#!/bin/sh
+set -eu
+source_dir=$(CDPATH= cd -- "$(dirname -- "$0")/../src" && pwd)
+exec sbcl --script "$source_dir/score-console.lisp" "$@"

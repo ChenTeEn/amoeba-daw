@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AMOEBA / MIX</title><link rel="stylesheet" href="mixer.css"><script src="mixer.js" defer></script></head>
+<body>
+<header class="mast"><div><h1 id="title">Mix</h1><span id="revision"></span></div><button id="close" data-action="close">關閉混音畫面</button></header>
+<main>
+ <section class="transport" aria-label="播放控制">
+  <button id="play" data-action="play">播放</button><button data-action="stop">停止</button>
+  <output id="clock">00:00.000</output>
+  <div class="ab"><button data-action="a" aria-pressed="false">A 已儲存</button><button data-action="b" aria-pressed="true">B 草稿</button></div>
+  <button data-action="undo">復原草稿</button><button data-action="save">儲存混音</button><button data-action="restore">回到前一版</button>
+ </section>
+ <div class="seek"><label for="position">播放位置</label><input id="position" type="range" min="0" max="0" value="0" step="1"><span>Space 播放／暫停 · A／B 切換</span></div>
+ <nav id="sections" class="transport" aria-label="段落定位"></nav>
+ <section class="automation" aria-label="增益自動化編輯">
+  <label>音軌 <select id="auto-track"></select></label>
+  <label>自動化點 <select id="auto-point"></select></label>
+  <label>秒 <input id="auto-time" type="number" min="0" step="any"></label>
+  <label>dB <input id="auto-db" type="number" min="-24" max="6" step="0.1" value="0"></label>
+  <button id="auto-cursor">取播放頭時間</button><button id="auto-new">新增點</button><button id="auto-update">更新點</button>
+ </section>
+ <details id="takes-panel">
+  <summary>錄音與人聲 Takes <span id="take-state"></span></summary>
+  <div class="automation">
+   <span>ALSA input → Voice</span>
+   <button id="take-confirm">確認錄音端點</button>
+   <label>起點 秒 <input id="take-from" type="number" step="any"></label>
+   <label>終點 秒 <input id="take-to" type="number" step="any"></label>
+   <button id="take-range">設定 B 段範圍</button>
+   <button id="take-record">錄新 Take</button><button id="take-cancel">取消錄音</button>
+  </div>
+  <section id="take-list" aria-label="已錄 Takes"></section>
+  <div class="automation">
+   <label>Take <select id="slice-take"></select></label>
+   <label>片段起點 秒 <input id="slice-from" type="number" step="any"></label>
+   <label>片段終點 秒 <input id="slice-to" type="number" step="any"></label>
+   <button id="slice-edge" aria-pressed="false">波形點選：起點</button><button id="slice-add">加入拼接片段</button>
+   <button id="slice-clear">清空片段</button>
+   <button id="take-comp">試聽拼接</button><button id="take-apply">確認套用拼接</button>
+   <button id="take-discard">放棄試聽</button>
+  </div>
+  <ol id="slice-list"></ol>
+ </details>
+ <section id="tracks" aria-label="立體聲混音音軌"></section>
+ <p id="message" role="status"></p>
+</main>
+</body></html>
